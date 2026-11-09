@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Diseño e impresión 3D · Treek</title>
+<meta name="theme-color" content="#8b35f5">
+<script>try{var t=localStorage.getItem('t3d-th');document.documentElement.dataset.t=(t?t==='d':matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light'}catch(e){}</script>
+<!-- Tipografía Inter (SIL Open Font License 1.1). Si la alojas tú, incluye su archivo de licencia. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main id="top">
+<div class="w hero"><div><h1>Diseño e impresión 3D con precisión</h1><p>Elige cómo empezar: calcula un precio, mira el catálogo o cuéntanos tu idea.</p></div><div class="m3" id="m3" role="img" aria-label="Modelo 3D interactivo de un jarrón hexagonal que se imprime capa por capa"><div class="sk" aria-hidden="true"></div><span class="mu m3h" aria-hidden="true">Arrastra para girar</span></div></div>
+<div class="w menu">
+<a class="card mc p" href="cotizar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 11h6M9 14h4"/></svg><h2>Cotizar mi pieza</h2><p class="mu">Cuéntanos qué necesitas y te respondemos por WhatsApp.</p><span class="go">Empezar →</span></a>
+<a class="card mc" href="calculadora.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12h0M8 16h2M12 16h2M16 16h0"/></svg><h2>Calculadora</h2><p class="mu">Estima el costo de una impresión FDM.</p><span class="go">Calcular →</span></a>
+<a class="card mc" href="catalogo.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/></svg><h2>Catálogo</h2><p class="mu">Productos listos para pedir.</p><span class="go">Ver productos →</span></a>
+</div>
+<section id="feat"><div class="w"><div class="sh"><h2>Destacados</h2><a class="btn g s" href="catalogo.html">Ver catálogo</a></div><div class="grid" id="fg"></div></div></section>
+</main>
+<script src="app.js"></script>
+<script src="model3d.js"></script>
+<script>
+shell('home');
+const fg=$('#fg');skel(fg);bindQ(fg);
+setTimeout(()=>{const l=S.items.slice(0,4);if(!l.length){$('#feat').hidden=true;return}fg.setAttribute('aria-busy','false');fg.innerHTML=l.map(card).join('')},700);
+</script>
+</body>
+</html>

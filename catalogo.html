@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Catálogo · Treek</title>
+<meta name="theme-color" content="#8b35f5">
+<script>try{var t=localStorage.getItem('t3d-th');document.documentElement.dataset.t=(t?t==='d':matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light'}catch(e){}</script>
+<!-- Tipografía Inter (SIL Open Font License 1.1). Si la alojas tú, incluye su archivo de licencia. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page"><h1>Catálogo</h1><span class="mu">Productos listos para pedir por WhatsApp.</span>
+<div class="tb"><input id="sq" type="search" placeholder="Buscar producto" aria-label="Buscar producto"><select id="sc" aria-label="Filtrar por categoría"></select></div>
+<div class="grid" id="gr"></div></main>
+<script src="app.js"></script>
+<script>
+shell('cat');
+function cats(){const c=[...new Set(S.items.map(i=>i.c).filter(Boolean))];$('#sc').innerHTML='<option value="">Todas las categorías</option>'+c.map(x=>`<option>${esc(x)}</option>`).join('')}
+function cat(){const q=$('#sq').value.toLowerCase(),c=$('#sc').value,g=$('#gr');
+const l=S.items.filter(i=>(!c||i.c===c)&&(i.n+' '+i.d).toLowerCase().includes(q));g.setAttribute('aria-busy','false');
+if(!S.items.length)g.innerHTML='<div class="empty"><b>Aún no hay productos</b>Vuelve pronto, estamos preparando el catálogo.</div>';
+else if(!l.length)g.innerHTML='<div class="empty"><b>Sin resultados</b>Prueba con otra búsqueda o categoría.</div>';
+else g.innerHTML=l.map(card).join('')}
+bindQ($('#gr'));$('#sq').oninput=cat;$('#sc').onchange=cat;
+skel($('#gr'));cats();setTimeout(cat,700);
+</script>
+</body>
+</html>

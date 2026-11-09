@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cotizar tu pieza · Treek</title>
+<meta name="theme-color" content="#8b35f5">
+<script>try{var t=localStorage.getItem('t3d-th');document.documentElement.dataset.t=(t?t==='d':matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light'}catch(e){}</script>
+<!-- Tipografía Inter (SIL Open Font License 1.1). Si la alojas tú, incluye su archivo de licencia. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page"><h1>Cotiza tu pieza</h1><span class="mu">Completa los datos y continúa en WhatsApp.</span>
+<form class="card pan fg" id="qf" style="max-width:720px">
+<label>Nombre<input id="qn" required autocomplete="name"></label>
+<label>Material<select id="qm"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>No sé</option></select></label>
+<label>Cantidad<input id="qc" type="number" min="1" value="1" inputmode="numeric" required></label>
+<label>Medidas aprox. (mm)<input id="qd" placeholder="80 x 40 x 20"></label>
+<label class="full">¿Qué necesitas imprimir?<textarea id="qt" required placeholder="Describe la pieza, uso y color"></textarea></label>
+<p class="mu full">Adjunta tu archivo STL o fotos directamente en el chat de WhatsApp.</p>
+<button class="btn full" type="submit">Enviar a WhatsApp</button>
+</form>
+</main>
+<script src="app.js"></script>
+<script>
+shell('quote');
+/* cotizar */
+$('#qf').onsubmit=e=>{e.preventDefault();wa(`Hola Treek, soy ${$('#qn').value}.\nQuiero cotizar: ${$('#qt').value}\nMaterial: ${$('#qm').value}\nCantidad: ${$('#qc').value}\nMedidas: ${$('#qd').value||'sin definir'}`)};
+
+
+</script>
+</body>
+</html>

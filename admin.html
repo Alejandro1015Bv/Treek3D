@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Administración · Treek</title>
+<meta name="theme-color" content="#8b35f5">
+<meta name="robots" content="noindex,nofollow">
+<script>try{var t=localStorage.getItem('t3d-th');document.documentElement.dataset.t=(t?t==='d':matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light'}catch(e){}</script>
+<!-- Tipografía Inter (SIL Open Font License 1.1). Si la alojas tú, incluye su archivo de licencia. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page" style="max-width:720px"><h1>Administración</h1><span class="mu">Gestiona el catálogo y los ajustes del sitio.</span><div class="card pan db" id="adm"></div></main>
+<script src="app.js"></script>
+<script>
+shell('admin');
+/* admin */
+const bd=$('#adm');let ok=false,ed=null;
+function adm(){
+if(!ok){bd.innerHTML=`<form id="lf" class="fg"><label class="full">PIN de acceso<input id="pin" type="password" inputmode="numeric" autocomplete="off" required></label><button class="btn full">Entrar</button><p class="mu full">PIN inicial: 1234. Cámbialo al entrar.</p></form>`;
+$('#lf').onsubmit=e=>{e.preventDefault();if($('#pin').value===String(S.cfg.pin)){ok=true;adm()}else{toast('PIN incorrecto','err');$('#pin').value=''}};return}
+const p=ed||{n:'',p:'',m:'PLA',c:'',d:'',i:''};
+bd.innerHTML=`<form id="cfg" class="fg"><h3 class="full">Ajustes</h3><label>WhatsApp (con código de país)<input id="cw" value="${esc(S.cfg.wa)}" inputmode="tel" placeholder="59171234567"></label><label>Moneda<input id="cc" value="${esc(S.cfg.cur)}" maxlength="5"></label><label>PIN<input id="cp" value="${esc(S.cfg.pin)}" minlength="4" required></label><button class="btn g full">Guardar ajustes</button></form>
+<form id="pf" class="fg"><h3 class="full">${ed?'Editar':'Nuevo'} producto</h3><label class="full">Nombre<input id="pn" required value="${esc(p.n)}"></label><label>Precio<input id="pp" type="number" min="0" step="any" required value="${p.p}"></label><label>Material<select id="pm">${['PLA','PETG','ABS','TPU','Resina'].map(m=>`<option ${m===p.m?'selected':''}>${m}</option>`).join('')}</select></label><label>Categoría<input id="pc" value="${esc(p.c)}"></label><label>Imagen<input id="pi" type="file" accept="image/*"></label><label class="full">Descripción<input id="pd" value="${esc(p.d)}"></label><button class="btn full">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<button type="button" class="btn g full" id="pcx">Cancelar edición</button>':''}</form>
+<div><h3>Productos (${S.items.length})</h3>${S.items.length?S.items.map(i=>`<div class="ar"><span>${esc(i.n)} · ${fm(i.p)}</span><button class="btn g s" data-e="${i.id}" aria-label="Editar ${esc(i.n)}">Editar</button><button class="btn d s" data-d="${i.id}" aria-label="Eliminar ${esc(i.n)}">Borrar</button></div>`).join(''):'<p class="mu">Sin productos todavía.</p>'}</div>
+<div class="fg"><button class="btn g" id="ex">Exportar JSON</button><label class="btn g" style="cursor:pointer">Importar JSON<input id="im" type="file" accept=".json" hidden></label></div>`;
+$('#cfg').onsubmit=e=>{e.preventDefault();S.cfg={wa:$('#cw').value.replace(/[^\d]/g,''),cur:$('#cc').value||'$',pin:$('#cp').value};if(save()){toast('Ajustes guardados')}};
+$('#pf').onsubmit=async e=>{e.preventDefault();const f=$('#pi').files[0];let img=p.i;if(f)img=await rs(f);
+const o={id:ed?ed.id:Date.now(),n:$('#pn').value.trim(),p:+$('#pp').value,m:$('#pm').value,c:$('#pc').value.trim(),d:$('#pd').value.trim(),i:img};
+const old=JSON.stringify(S.items);if(ed)S.items=S.items.map(x=>x.id===o.id?o:x);else S.items.push(o);
+if(save()){toast(ed?'Producto actualizado':'Producto agregado');ed=null;adm()}else S.items=JSON.parse(old)};
+if(ed)$('#pcx').onclick=()=>{ed=null;adm()};
+bd.onclick=e=>{const a=e.target.closest('[data-e]'),b=e.target.closest('[data-d]');
+if(a){ed=S.items.find(x=>x.id==a.dataset.e);adm();bd.scrollIntoView()}
+if(b&&confirm('¿Eliminar este producto?')){S.items=S.items.filter(x=>x.id!=b.dataset.d);save();toast('Producto eliminado');adm()}};
+$('#ex').onclick=()=>{const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));l.download='treek-catalogo.json';l.click();toast('Copia exportada')};
+$('#im').onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!x.items||!x.cfg)throw 0;S=x;save();adm();toast('Catálogo importado')}catch(_){toast('Archivo no válido','err')}}}
+function rs(f){return new Promise(r=>{const im=new Image,u=URL.createObjectURL(f);im.onload=()=>{const k=Math.min(1,500/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL('image/jpeg',.8))};im.onerror=()=>r('');im.src=u})}
+
+
+adm();
+</script>
+</body>
+</html>

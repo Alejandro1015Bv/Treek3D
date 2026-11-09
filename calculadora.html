@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora de costos · Treek</title>
+<meta name="theme-color" content="#8b35f5">
+<script>try{var t=localStorage.getItem('t3d-th');document.documentElement.dataset.t=(t?t==='d':matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light'}catch(e){}</script>
+<!-- Tipografía Inter (SIL Open Font License 1.1). Si la alojas tú, incluye su archivo de licencia. -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500&display=swap">
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<main class="page"><h1>Calculadora de costos FDM</h1><span class="mu">Precios en bolivianos (Bs). Ajusta los datos y obtén el costo al instante.</span>
+<div class="calc">
+<form class="card pan fg" id="cf" onsubmit="return false">
+<label>Material<select id="mat" aria-label="Material"></select></label>
+<label>Precio filamento (por kg)<input id="pk" type="number" min="0" step="any" inputmode="decimal"></label>
+<label>Peso de la pieza (g)<input id="g" type="number" min="0" step="any" inputmode="decimal" value="50"></label>
+<label>Tiempo de impresión (h)<input id="h" type="number" min="0" step="any" inputmode="decimal" value="3"></label>
+<label>Consumo impresora (W)<input id="w" type="number" min="0" step="any" inputmode="decimal" value="150"></label>
+<label>Costo energía (por kWh)<input id="kw" type="number" min="0" step="any" inputmode="decimal" value="0.9"></label>
+<label>Desgaste máquina (por hora)<input id="mh" type="number" min="0" step="any" inputmode="decimal" value="3"></label>
+<label>Mano de obra (por pieza)<input id="lb" type="number" min="0" step="any" inputmode="decimal" value="15"></label>
+<label>Fallos (%)<input id="fl" type="number" min="0" step="any" inputmode="decimal" value="5"></label>
+<label>Margen (%)<input id="mg" type="number" min="0" step="any" inputmode="decimal" value="40"></label>
+<label class="full">Cantidad<input id="q" type="number" min="1" step="1" inputmode="numeric" value="1"></label>
+</form>
+<div class="card pan res" aria-live="polite">
+<div id="rsk" aria-hidden="true"><div class="sk" style="height:18px;width:40%;margin-bottom:12px"></div><div class="sk" style="height:48px;width:70%;margin-bottom:16px"></div><div class="sk" style="height:90px"></div></div>
+<div id="rv" hidden><span class="mu">Precio total</span><div class="tot" id="tt"></div><span class="mu" id="tu"></span>
+<ul class="bk" id="bk"></ul>
+<button class="btn" id="cq" style="width:100%">Cotizar por WhatsApp</button></div>
+</div></div>
+</main>
+<script src="app.js"></script>
+<script>
+shell('calc');
+const MAT={PLA:140,PETG:170,ABS:160,TPU:220};
+/* calculadora */
+const F=id=>Math.max(0,parseFloat($('#'+id).value)||0);
+$('#mat').innerHTML=Object.keys(MAT).map(k=>`<option>${k}</option>`).join('');$('#pk').value=MAT.PLA;
+$('#mat').onchange=()=>{$('#pk').value=MAT[$('#mat').value];calc()};
+let R={};
+function calc(){
+const mat=F('g')/1000*F('pk'),en=F('w')/1000*F('h')*F('kw'),mq=F('h')*F('mh'),lb=F('lb');
+const base=(mat+en+mq)*(1+F('fl')/100)+lb,u=base*(1+F('mg')/100),q=Math.max(1,Math.round(F('q'))||1);
+R={u,t:u*q,q,mat,en,mq,lb,fl:(mat+en+mq)*F('fl')/100,mg:base*F('mg')/100};
+$('#tt').textContent=fm(R.t);$('#tu').textContent=q>1?fm(u)+' por unidad × '+q:'1 unidad';
+$('#bk').innerHTML=[['Filamento',R.mat],['Energía',R.en],['Desgaste máquina',R.mq],['Mano de obra',R.lb],['Margen de fallos',R.fl],['Ganancia',R.mg]].map(a=>`<li><span>${a[0]}</span><b>${fm(a[1])}</b></li>`).join('')}
+$('#cf').addEventListener('input',calc);
+$('#cq').onclick=()=>wa(`Hola Treek, quiero cotizar una pieza.\nMaterial: ${$('#mat').value}\nPeso: ${F('g')} g · Tiempo: ${F('h')} h\nCantidad: ${R.q}\nEstimado de la calculadora: ${fm(R.t)}`);
+
+
+calc();setTimeout(()=>{$('#rsk').remove();$('#rv').hidden=false},700);
+</script>
+</body>
+</html>
