@@ -26,8 +26,8 @@
 <script src="model3d.js"></script>
 <script>
 shell('home');
-const fg=$('#fg');skel(fg);bindQ(fg);
-setTimeout(()=>{const l=S.items.slice(0,4);if(!l.length){$('#feat').hidden=true;return}fg.setAttribute('aria-busy','false');fg.innerHTML=l.map(card).join('')},700);
+const fg=$('#fg');bindQ(fg);
+withData(fg,()=>{const l=S.items.slice(0,4);if(!l.length){$('#feat').hidden=true;return}fg.innerHTML=l.map(card).join('')});
 </script>
 </body>
 </html>

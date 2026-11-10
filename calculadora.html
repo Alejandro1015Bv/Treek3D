@@ -54,7 +54,7 @@ $('#cf').addEventListener('input',calc);
 $('#cq').onclick=()=>wa(`Hola Treek, quiero cotizar una pieza.\nMaterial: ${$('#mat').value}\nPeso: ${F('g')} g · Tiempo: ${F('h')} h\nCantidad: ${R.q}\nEstimado de la calculadora: ${fm(R.t)}`);
 
 
-calc();setTimeout(()=>{$('#rsk').remove();$('#rv').hidden=false},700);
+calc();DATA.then(()=>{calc();$('#rsk').remove();$('#rv').hidden=false});
 </script>
 </body>
 </html>

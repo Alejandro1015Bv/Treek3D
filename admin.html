@@ -14,35 +14,48 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<main class="page" style="max-width:720px"><h1>Administración</h1><span class="mu">Gestiona el catálogo y los ajustes del sitio.</span><div class="card pan db" id="adm"></div></main>
+<main class="page" style="max-width:760px"><h1>Administración</h1><span class="mu">Gestiona el catálogo y los ajustes del sitio.</span><div id="adm" style="display:grid;gap:16px"><div class="card pan"><div class="sk" style="height:180px"></div></div></div></main>
+<script src="assets/supabase.js"></script>
 <script src="app.js"></script>
 <script>
 shell('admin');
-/* admin */
-const bd=$('#adm');let ok=false,ed=null;
-function adm(){
-if(!ok){bd.innerHTML=`<form id="lf" class="fg"><label class="full">PIN de acceso<input id="pin" type="password" inputmode="numeric" autocomplete="off" required></label><button class="btn full">Entrar</button><p class="mu full">PIN inicial: 1234. Cámbialo al entrar.</p></form>`;
-$('#lf').onsubmit=e=>{e.preventDefault();if($('#pin').value===String(S.cfg.pin)){ok=true;adm()}else{toast('PIN incorrecto','err');$('#pin').value=''}};return}
-const p=ed||{n:'',p:'',m:'PLA',c:'',d:'',i:''};
-bd.innerHTML=`<form id="cfg" class="fg"><h3 class="full">Ajustes</h3><label>WhatsApp (con código de país)<input id="cw" value="${esc(S.cfg.wa)}" inputmode="tel" placeholder="59171234567"></label><label>Moneda<input id="cc" value="${esc(S.cfg.cur)}" maxlength="5"></label><label>PIN<input id="cp" value="${esc(S.cfg.pin)}" minlength="4" required></label><button class="btn g full">Guardar ajustes</button></form>
-<form id="pf" class="fg"><h3 class="full">${ed?'Editar':'Nuevo'} producto</h3><label class="full">Nombre<input id="pn" required value="${esc(p.n)}"></label><label>Precio<input id="pp" type="number" min="0" step="any" required value="${p.p}"></label><label>Material<select id="pm">${['PLA','PETG','ABS','TPU','Resina'].map(m=>`<option ${m===p.m?'selected':''}>${m}</option>`).join('')}</select></label><label>Categoría<input id="pc" value="${esc(p.c)}"></label><label>Imagen<input id="pi" type="file" accept="image/*"></label><label class="full">Descripción<input id="pd" value="${esc(p.d)}"></label><button class="btn full">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<button type="button" class="btn g full" id="pcx">Cancelar edición</button>':''}</form>
-<div><h3>Productos (${S.items.length})</h3>${S.items.length?S.items.map(i=>`<div class="ar"><span>${esc(i.n)} · ${fm(i.p)}</span><button class="btn g s" data-e="${i.id}" aria-label="Editar ${esc(i.n)}">Editar</button><button class="btn d s" data-d="${i.id}" aria-label="Eliminar ${esc(i.n)}">Borrar</button></div>`).join(''):'<p class="mu">Sin productos todavía.</p>'}</div>
-<div class="fg"><button class="btn g" id="ex">Exportar JSON</button><label class="btn g" style="cursor:pointer">Importar JSON<input id="im" type="file" accept=".json" hidden></label></div>`;
-$('#cfg').onsubmit=e=>{e.preventDefault();S.cfg={wa:$('#cw').value.replace(/[^\d]/g,''),cur:$('#cc').value||'$',pin:$('#cp').value};if(save()){toast('Ajustes guardados')}};
-$('#pf').onsubmit=async e=>{e.preventDefault();const f=$('#pi').files[0];let img=p.i;if(f)img=await rs(f);
-const o={id:ed?ed.id:Date.now(),n:$('#pn').value.trim(),p:+$('#pp').value,m:$('#pm').value,c:$('#pc').value.trim(),d:$('#pd').value.trim(),i:img};
-const old=JSON.stringify(S.items);if(ed)S.items=S.items.map(x=>x.id===o.id?o:x);else S.items.push(o);
-if(save()){toast(ed?'Producto actualizado':'Producto agregado');ed=null;adm()}else S.items=JSON.parse(old)};
-if(ed)$('#pcx').onclick=()=>{ed=null;adm()};
-bd.onclick=e=>{const a=e.target.closest('[data-e]'),b=e.target.closest('[data-d]');
-if(a){ed=S.items.find(x=>x.id==a.dataset.e);adm();bd.scrollIntoView()}
-if(b&&confirm('¿Eliminar este producto?')){S.items=S.items.filter(x=>x.id!=b.dataset.d);save();toast('Producto eliminado');adm()}};
-$('#ex').onclick=()=>{const l=document.createElement('a');l.href=URL.createObjectURL(new Blob([JSON.stringify(S,null,1)],{type:'application/json'}));l.download='treek-catalogo.json';l.click();toast('Copia exportada')};
-$('#im').onchange=async e=>{try{const x=JSON.parse(await e.target.files[0].text());if(!x.items||!x.cfg)throw 0;S=x;save();adm();toast('Catálogo importado')}catch(_){toast('Archivo no válido','err')}}}
-function rs(f){return new Promise(r=>{const im=new Image,u=URL.createObjectURL(f);im.onload=()=>{const k=Math.min(1,500/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);r(c.toDataURL('image/jpeg',.8))};im.onerror=()=>r('');im.src=u})}
-
-
-adm();
+const sb=supabase.createClient(SB.url,SB.key),A=$('#adm'),PUB=SB.url+'/storage/v1/object/public/productos/';
+let items=[],ed=null,cfg={whatsapp:'',moneda:'Bs'};
+const f$=n=>(cfg.moneda||'Bs')+' '+(+n||0).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
+const box=h=>'<div class="card pan db">'+h+'</div>';
+const ES=m=>({'Invalid login credentials':'Correo o contraseña incorrectos','Email not confirmed':'Correo sin confirmar'}[m]||m);
+function login(){A.innerHTML=box('<form id="lf" class="fg"><label class="full">Correo<input id="em" type="email" autocomplete="username" required></label><label class="full">Contraseña<input id="pw" type="password" autocomplete="current-password" required></label><button class="btn full" id="lb">Entrar</button></form>');
+$('#lf').onsubmit=async e=>{e.preventDefault();const b=$('#lb');b.disabled=true;b.textContent='Entrando…';
+const{error}=await sb.auth.signInWithPassword({email:$('#em').value.trim(),password:$('#pw').value});
+if(error){toast(ES(error.message),'err');b.disabled=false;b.textContent='Entrar';return}await panel()}}
+async function panel(){A.innerHTML=box('<div class="sk" style="height:180px"></div>');
+const{data:ok,error:e0}=await sb.rpc('is_admin');
+if(e0||!ok){await sb.auth.signOut();login();toast('Esta cuenta no tiene permisos de administrador','err');return}
+const[p,a]=await Promise.all([sb.from('productos').select('*').order('creado_en',{ascending:false}),sb.from('ajustes').select('*').eq('id',1).maybeSingle()]);
+if(p.error||a.error)toast('No se pudieron cargar todos los datos','err');
+items=p.data||[];if(a.data)cfg=a.data;draw()}
+function draw(){const p=ed||{nombre:'',precio:'',material:'PLA',categoria:'',descripcion:'',imagen_url:'',activo:true};
+A.innerHTML=box(`<form id="cfg" class="fg"><h3 class="full">Ajustes</h3><label>WhatsApp (con código de país)<input id="cw" value="${esc(cfg.whatsapp)}" inputmode="tel" placeholder="59170847407"></label><label>Moneda<input id="cc" value="${esc(cfg.moneda)}" maxlength="5" required></label><button class="btn g full">Guardar ajustes</button></form>`)
++box(`<form id="pf" class="fg"><h3 class="full">${ed?'Editar':'Nuevo'} producto</h3><label class="full">Nombre<input id="pn" required maxlength="120" value="${esc(p.nombre)}"></label><label>Precio<input id="pp" type="number" min="0" step="any" inputmode="decimal" required value="${p.precio}"></label><label>Material<select id="pm">${['PLA','PETG','ABS','TPU','Resina'].map(m=>`<option ${m===p.material?'selected':''}>${m}</option>`).join('')}</select></label><label>Categoría<input id="pc" maxlength="60" value="${esc(p.categoria)}"></label><label>Estado<select id="pa"><option value="1" ${p.activo?'selected':''}>Visible</option><option value="0" ${p.activo?'':'selected'}>Oculto</option></select></label><label class="full">Descripción<input id="pd" maxlength="400" value="${esc(p.descripcion)}"></label><label class="full">Foto (JPG, PNG o WebP)<input id="pi" type="file" accept="image/*"></label>${p.imagen_url?`<img class="full" src="${esc(p.imagen_url)}" alt="Foto actual de ${esc(p.nombre)}" style="height:72px;width:auto;border-radius:8px">`:''}<button class="btn full">${ed?'Guardar cambios':'Agregar producto'}</button>${ed?'<button type="button" class="btn g full" id="pcx">Cancelar edición</button>':''}</form>`)
++box(`<h3>Productos (${items.length})</h3>${items.length?items.map(i=>`<div class="ar"><span>${esc(i.nombre)} · ${f$(i.precio)}${i.activo?'':' · oculto'}</span><button class="btn g s" data-e="${i.id}" aria-label="Editar ${esc(i.nombre)}">Editar</button><button class="btn d s" data-d="${i.id}" aria-label="Eliminar ${esc(i.nombre)}">Borrar</button></div>`).join(''):'<p class="mu">Sin productos todavía. Agrega el primero arriba.</p>'}<button class="btn g" id="out">Cerrar sesión</button>`);
+$('#cfg').onsubmit=async e=>{e.preventDefault();const w=$('#cw').value.replace(/\D/g,''),m=$('#cc').value.trim()||'Bs';
+const{error}=await sb.from('ajustes').upsert({id:1,whatsapp:w,moneda:m});if(error)return toast('No se pudo guardar: '+error.message,'err');cfg={whatsapp:w,moneda:m};toast('Ajustes guardados');draw()};
+$('#pf').onsubmit=async e=>{e.preventDefault();const b=e.submitter;b.disabled=true;const old=p.imagen_url;let url=old;
+try{const f=$('#pi').files[0];if(f){const bl=await rs(f);if(!bl)throw new Error('La imagen no es válida');const path=crypto.randomUUID()+'.jpg';
+const up=await sb.storage.from('productos').upload(path,bl,{contentType:'image/jpeg'});if(up.error)throw up.error;url=PUB+path}
+const row={nombre:$('#pn').value.trim(),precio:+$('#pp').value,material:$('#pm').value,categoria:$('#pc').value.trim(),descripcion:$('#pd').value.trim(),imagen_url:url||null,activo:$('#pa').value==='1'};
+const r=ed?await sb.from('productos').update(row).eq('id',ed.id):await sb.from('productos').insert(row);if(r.error)throw r.error;
+if(old&&url!==old)rmImg(old);toast(ed?'Producto actualizado':'Producto agregado');ed=null;await panel()}
+catch(err){toast('Error: '+(err.message||err),'err');b.disabled=false}};
+if(ed)$('#pcx').onclick=()=>{ed=null;draw()}}
+const rmImg=u=>{if(u&&u.startsWith(PUB))sb.storage.from('productos').remove([u.slice(PUB.length)])};
+A.onclick=async e=>{const a=e.target.closest('[data-e]'),d=e.target.closest('[data-d]');
+if(a){ed=items.find(x=>x.id==a.dataset.e);draw();$('#pf').scrollIntoView({behavior:'smooth'})}
+if(d&&confirm('¿Eliminar este producto?')){const it=items.find(x=>x.id==d.dataset.d),{error}=await sb.from('productos').delete().eq('id',it.id);
+if(error)return toast('No se pudo eliminar: '+error.message,'err');rmImg(it.imagen_url);toast('Producto eliminado');await panel()}
+if(e.target.closest('#out')){await sb.auth.signOut();ed=null;login()}};
+function rs(f){return new Promise(r=>{const im=new Image,u=URL.createObjectURL(f);im.onload=()=>{const k=Math.min(1,800/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>r(b),'image/jpeg',.82)};im.onerror=()=>r(null);im.src=u})}
+sb.auth.getSession().then(({data})=>data.session?panel():login());
 </script>
 </body>
 </html>

@@ -1,0 +1,11 @@
+TREEK - sitio web (HTML, CSS y JS puro, sin compilar)
+
+Abrir: index.html. Administración: admin.html (no está enlazada en el sitio).
+Backend: Supabase (URL y clave publicable en app.js). La seguridad está en las políticas RLS de la base de datos.
+
+Publicar (cualquiera de las dos):
+- GitHub Pages: sube esta carpeta a un repositorio y activa Settings > Pages.
+- Vercel: importa el repositorio (o arrastra la carpeta); no requiere configuración.
+
+Licencias de terceros: @supabase/supabase-js 2.118.0 (MIT, assets/supabase.js), three.js r128 (MIT, por CDN),
+fuente Inter (SIL OFL 1.1, por Google Fonts).
