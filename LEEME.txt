@@ -3,9 +3,20 @@ TREEK - sitio web (HTML, CSS y JS puro, sin compilar)
 Abrir: index.html. Administración: admin.html (no está enlazada en el sitio).
 Backend: Supabase (URL y clave publicable en app.js). La seguridad está en las políticas RLS de la base de datos.
 
+Calculadora - valores de referencia (editables en pantalla y en MAT, dentro de calculadora.html):
+- Filamento, Bs/kg: PLA 160, PETG 180, ABS 200. Rango visto en tiendas bolivianas (nov. 2026): PLA 105-225, PETG 120-260, ABS 130-255
+  (aditiva3d.com.bo, 3designbo.com, prot3dbolivia.wixsite.com). Usa tu costo real de compra.
+- Energia: 1,00 Bs/kWh es una estimacion; calcula la tuya con tu factura (total / kWh consumidos). La tarifa se reestructuro en oct. 2026.
+- El tipo de cambio ya no esta fijo (aprox. 11,8 Bs/USD en nov. 2026): revisa los costos de filamento importado cada cierto tiempo.
+- Desgaste (3 Bs/h) y mano de obra (15 Bs/pieza): estimaciones de partida, ajustalas a tu taller.
+
 Publicar (cualquiera de las dos):
 - GitHub Pages: sube esta carpeta a un repositorio y activa Settings > Pages.
 - Vercel: importa el repositorio (o arrastra la carpeta); no requiere configuración.
 
-Licencias de terceros: @supabase/supabase-js 2.118.0 (MIT, assets/supabase.js), three.js r128 (MIT, por CDN),
+Animaciones: Sakuga VFX (https://github.com/finktheartist/sakuga-vfx, MIT) en assets/sakuga/. Botones, deslizadores,
+ayudas, selector de material, interruptor de modo oscuro (se carga en segundo plano) y aviso de éxito del admin. Los colores de los efectos se ajustan en app.js (skTheme)
+y en styles.css (variables --sk-*). Se desactivan solas si el sistema pide reducir movimiento.
+
+Licencias de terceros: @supabase/supabase-js 2.118.0 (MIT, assets/supabase.js), three.js r128 (MIT, por CDN), Sakuga VFX 1.0 (MIT, assets/sakuga/LICENSE),
 fuente Inter (SIL OFL 1.1, por Google Fonts).

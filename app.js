@@ -13,20 +13,28 @@ const DATA=loadData();
 /* ===== Utilidades ===== */
 const cur=()=>S.cfg.cur||'Bs',fm=n=>cur()+' '+(+n||0).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let tt;function toast(m,e){const t=$('#toast');t.textContent=m;t.className='on'+(e?' err':'');clearTimeout(tt);tt=setTimeout(()=>t.className='',2800)}
-function wa(txt){const n=(S.cfg.wa||'').replace(/\D/g,'');if(!n){toast('El WhatsApp aún no está configurado','err');return}
-window.open('https://wa.me/'+n+'?text='+encodeURIComponent(txt),'_blank','noopener')}
-const card=i=>`<article class="card pc"><img src="${i.i||PH()}" alt="${esc(i.n)}${i.i?'':' (imagen de referencia)'}" loading="lazy"><div class="b"><span class="chip">${esc(i.m)}</span><h3>${esc(i.n)}</h3><p class="mu">${esc(i.d)}</p><span class="pr">${fm(i.p)}</span></div><button class="btn s" data-q="${i.id}" aria-label="Cotizar ${esc(i.n)}">Cotizar</button></article>`;
+let tt;function toast(m,e){const st=$('#stoast');if(st&&!e&&st.show){st.show(m);return}const t=$('#toast');t.textContent=m;t.className='on'+(e?' err':'');clearTimeout(tt);tt=setTimeout(()=>t.className='',2800)}
+function wa(txt){const n=(S.cfg.wa||'').replace(/\D/g,'');if(!n){toast('El WhatsApp aún no está configurado','err');return false}
+window.open('https://wa.me/'+n+'?text='+encodeURIComponent(txt),'_blank','noopener');return true}
+const card=i=>`<article class="card pc"><img src="${i.i||PH()}" alt="${esc(i.n)}${i.i?'':' (imagen de referencia)'}" loading="lazy"><div class="b"><span class="chip">${esc(i.m)}</span><h3>${esc(i.n)}</h3><p class="mu">${esc(i.d)}</p><span class="pr">${fm(i.p)}</span></div><sakuga-button class="sm pc-b" variant="secondary" data-q="${i.id}" aria-label="Cotizar ${esc(i.n)}">Cotizar</sakuga-button></article>`;
 const skel=(el,n=4)=>{el.setAttribute('aria-busy','true');el.innerHTML=Array(n).fill('<div class="card pc" aria-hidden="true"><div class="sk" style="aspect-ratio:4/3;border-radius:0"></div><div class="b"><div class="sk" style="height:16px;width:70%"></div><div class="sk" style="height:12px;width:40%"></div><div class="sk" style="height:18px;width:30%"></div></div></div>').join('')};
 const errBox=(el,retry)=>{el.setAttribute('aria-busy','false');el.innerHTML='<div class="empty"><b>No pudimos cargar los datos</b>Revisa tu conexión e inténtalo de nuevo.<br><button class="btn s" id="rt" style="margin-top:12px">Reintentar</button></div>';$('#rt').onclick=retry};
 function withData(el,render,again){skel(el);(again?loadData():DATA).then(()=>{el.setAttribute('aria-busy','false');if(S.err)errBox(el,()=>withData(el,render,true));else render()})}
 function bindQ(el){el.onclick=e=>{const b=e.target.closest('[data-q]');if(!b)return;const i=S.items.find(x=>x.id==b.dataset.q);wa(`Hola Treek, me interesa: ${i.n} (${i.m}) - ${fm(i.p)}. ¿Está disponible?`)}}
 /* ===== Cabecera, navegación y pie ===== */
 const NAV=[['index.html','Inicio','home'],['calculadora.html','Calculadora','calc'],['catalogo.html','Catálogo','cat'],['cotizar.html','Cotizar','quote']];
+/* Paleta de los efectos de Sakuga VFX (la librería la expone en SakugaFX.P) con los colores de Treek */
+function skTheme(){const fx=window.SakugaFX;if(!fx)return;const d=document.documentElement.dataset.t==='dark';
+Object.assign(fx.P,d?{fill:'#1a1824',shade:'#5b21b6',line:'#c4a5ff',accent:'#c4a5ff',ink:'#ffffff',sfx:['#ffffff','#5b21b6']}:{fill:'#ffffff',shade:'#c4a5ff',line:'#8b35f5',accent:'#8b35f5',ink:'#111018',sfx:['#111018','#ffffff']})}
 function shell(a){const adm=a==='admin';
-document.body.insertAdjacentHTML('afterbegin',`<header><div class="w"><a class="brand" href="index.html" aria-label="Treek, inicio"><img class="lt" src="assets/logo-h.png" alt="Treek" width="83" height="34"><img class="dk" src="assets/logo-hw.png" alt="" width="83" height="34"></a>${adm?'':'<nav aria-label="Principal">'+NAV.map(n=>`<a href="${n[0]}"${n[2]===a?' class="on" aria-current="page"':''}>${n[1]}</a>`).join('')+'</nav>'}<span class="sp"></span>${adm?'<a class="btn g s" href="index.html">Ver sitio</a>':''}<button class="btn g s" id="th" aria-label="Cambiar modo oscuro" aria-pressed="false">Tema</button></div></header>`);
-document.body.insertAdjacentHTML('beforeend',`<footer class="mu"><img class="lt" src="assets/simbolo.png" alt="" width="23" height="36"><img class="dk" src="assets/simbolo-w.png" alt="" width="23" height="36"><span>© ${new Date().getFullYear()} Treek · Diseño, modelado e impresión 3D</span></footer><div id="toast" role="status"></div>`);
+document.body.insertAdjacentHTML('afterbegin',`<header><div class="w"><a class="brand" href="index.html" aria-label="Treek, inicio"><img class="lt" src="assets/logo-h.png" alt="Treek" width="83" height="34"><img class="dk" src="assets/logo-hw.png" alt="" width="83" height="34"></a>${adm?'':'<nav aria-label="Principal">'+NAV.map(n=>`<a href="${n[0]}"${n[2]===a?' class="on" aria-current="page"':''}>${n[1]}</a>`).join('')+'</nav>'}<span class="sp"></span>${adm?'<a class="btn g s" href="index.html">Ver sitio</a>':''}<sakuga-toggle id="th" label="Modo oscuro"></sakuga-toggle></div></header>`);
+document.body.insertAdjacentHTML('beforeend',`<footer class="mu"><img class="lt" src="assets/simbolo.png" alt="" width="23" height="36"><img class="dk" src="assets/simbolo-w.png" alt="" width="23" height="36"><span>© ${new Date().getFullYear()} Treek · Diseño, modelado e impresión 3D</span></footer><div id="toast" role="status"></div>${customElements.get('sakuga-toast')?'<sakuga-toast id="stoast"></sakuga-toast>':''}`);
 if(adm)document.body.classList.add('noav');
 let dark=document.documentElement.dataset.t==='dark';
-const setT=()=>{document.documentElement.dataset.t=dark?'dark':'light';$('#th').setAttribute('aria-pressed',dark);$('#th').textContent=dark?'Claro':'Oscuro';try{localStorage.setItem('t3d-th',dark?'d':'l')}catch(e){}};
-$('#th').onclick=()=>{dark=!dark;setT()};setT()}
+const setT=()=>{document.documentElement.dataset.t=dark?'dark':'light';skTheme();try{localStorage.setItem('t3d-th',dark?'d':'l')}catch(e){}};
+setT();
+/* Interruptor de Sakuga VFX (≈500 KB): se carga en segundo plano; si falla, queda un botón normal */
+const tgFallback=()=>{const b=document.createElement('button'),lab=()=>{b.setAttribute('aria-pressed',dark);b.textContent=dark?'Claro':'Oscuro'};b.className='btn g s';b.id='th';b.setAttribute('aria-label','Cambiar modo oscuro');lab();b.onclick=()=>{dark=!dark;setT();lab()};$('#th').replaceWith(b)};
+const sc=document.createElement('script');sc.src='assets/sakuga/toggle.js';sc.onerror=tgFallback;
+sc.onload=()=>customElements.whenDefined('sakuga-toggle').then(()=>{const t=$('#th');t.checked=dark;t.addEventListener('change',()=>{dark=t.checked;setT()})});
+(window.requestIdleCallback||setTimeout)(()=>document.head.appendChild(sc))}

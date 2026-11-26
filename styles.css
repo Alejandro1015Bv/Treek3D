@@ -98,3 +98,23 @@ body::after{opacity:.09;background:url("data:image/svg+xml,%3Csvg xmlns='http://
 @media(min-width:768px){.hero{flex-direction:row;align-items:center}.m3{flex:0 0 340px;width:340px;height:390px}}
 @media(min-width:1100px){.m3{flex-basis:450px;width:450px;height:450px}}
 @media(prefers-reduced-motion:reduce){.m3{cursor:default}}
+
+/* Sakuga VFX (MIT, assets/sakuga): componentes con efectos, tematizados con la marca */
+:root{--sk-card:#fff;--sk-ink:#111018;--sk-dim:#5d5870;--sk-soft:#c4a5ff;--sk-pri:#8b35f5;--sk-pri-ink:#fff;--sk-acc:#5b21b6;--sk-track:#ddd6ee;--sk-r:12px;--sk-bw:2px;--sk-sh:3px 4px 0 var(--sk-soft);--sk-on-pri:#fff;--sk-btn-line:#8b35f5;--sk-alt-line:var(--bd)}
+[data-t=dark]{--sk-card:#1a1824;--sk-ink:#fff;--sk-dim:#b5aecb;--sk-soft:#5b21b6;--sk-acc:#c4a5ff;--sk-track:#322d47;--sk-btn-line:#8b35f5}
+sakuga-button::part(button){font:500 16px/1.2 var(--f);font-style:normal;letter-spacing:0;padding:12px 24px}
+sakuga-button.sm::part(button){padding:8px 16px;font-size:14px}
+sakuga-button.w{display:block}sakuga-button.w::part(button){width:100%}
+sakuga-button.pc-b{margin:0 var(--s3) var(--s3)}
+sakuga-slider{--sk-slider-width:100%;display:block;width:100%}
+sakuga-toast{position:fixed;left:50%;bottom:calc(var(--tb) + 16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;pointer-events:none}
+@media(min-width:768px){sakuga-toast{bottom:24px}}
+sakuga-button:not(:defined){display:inline-block;padding:8px 16px;border:1px solid var(--pr);border-radius:var(--rs)}
+.fld{display:grid;gap:var(--s1);align-content:start;font-size:.85rem;font-weight:500}
+.fld>span{display:flex;align-items:center;gap:var(--s2)}
+sakuga-tooltip::part(button){width:26px;height:26px;font-size:13px;box-shadow:2px 3px 0 var(--sk-soft)}
+.fld>span,label>.lt{display:flex;align-items:center;gap:var(--s2);min-height:28px}
+.fld sakuga-slider{margin-top:24px}
+sakuga-toggle{zoom:.6;margin:0}
+sakuga-toggle:not(:defined){display:inline-block;width:108px;height:54px;border-radius:99px;background:linear-gradient(90deg,var(--sk1),var(--sk2),var(--sk1));background-size:200% 100%;animation:sh 1.3s infinite linear}
+@media(prefers-reduced-motion:reduce){sakuga-toggle:not(:defined){animation:none}}

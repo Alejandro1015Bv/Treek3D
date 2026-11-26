@@ -16,14 +16,17 @@
 <main class="page"><h1>Cotiza tu pieza</h1><span class="mu">Completa los datos y continúa en WhatsApp.</span>
 <form class="card pan fg" id="qf" style="max-width:720px">
 <label>Nombre<input id="qn" required autocomplete="name"></label>
-<label>Material<select id="qm"><option>PLA</option><option>PETG</option><option>ABS</option><option>TPU</option><option>No sé</option></select></label>
+
 <label>Cantidad<input id="qc" type="number" min="1" value="1" inputmode="numeric" required></label>
 <label>Medidas aprox. (mm)<input id="qd" placeholder="80 x 40 x 20"></label>
+<div class="fld full"><span>Material</span><sakuga-radio id="qm" label="Material" name="material"><option value="PLA" selected>PLA</option><option value="PETG">PETG</option><option value="ABS">ABS</option></sakuga-radio></div>
 <label class="full">¿Qué necesitas imprimir?<textarea id="qt" required placeholder="Describe la pieza, uso y color"></textarea></label>
 <p class="mu full">Adjunta tu archivo STL o fotos directamente en el chat de WhatsApp.</p>
-<button class="btn full" type="submit">Enviar a WhatsApp</button>
+<sakuga-button class="w full" type="submit">Enviar a WhatsApp</sakuga-button>
 </form>
 </main>
+<script src="assets/sakuga/button.js"></script>
+<script src="assets/sakuga/radio.js"></script>
 <script src="app.js"></script>
 <script>
 shell('quote');
